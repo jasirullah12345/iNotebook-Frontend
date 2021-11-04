@@ -1,17 +1,21 @@
-import './App.css';
 import Navbar from "./components/Navbar";
-import {Routes, Route} from "react-router-dom";
+import {Route, Routes} from "react-router-dom";
 import Home from "./components/Home";
 import About from "./components/About";
+import NoteState from "./context/Note/NoteState";
 
 function App() {
     return (
         <>
             <Navbar text="iNotebook"/>
-            <Routes>
-                <Route path="/" element={<Home />} />
-                <Route path="/about" element={<About />} />
-            </Routes>
+            <div className="container">
+                <NoteState>
+                    <Routes>
+                        <Route path="/" element={<Home/>}/>
+                        <Route path="/about" element={<About/>}/>
+                    </Routes>
+                </NoteState>
+            </div>
         </>
     );
 }

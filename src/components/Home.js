@@ -1,9 +1,12 @@
 import React from 'react';
+import NoteForm from "./NoteForm";
+import Notes from "./Notes";
 
 const Home = () => {
     return (
         <>
-            Home section
+            <NoteForm/>
+            <Notes/>
         </>
     );
 };
