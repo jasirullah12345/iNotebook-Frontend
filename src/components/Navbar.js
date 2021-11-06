@@ -6,7 +6,7 @@ const Navbar = (props) => {
     let location = useLocation().pathname;
     return (
         <>
-            <nav className="navbar navbar-expand-lg navbar-light bg-light">
+            <nav className="navbar navbar-expand-lg navbar-dark bg-dark">
                 <div className="container-fluid">
                     <Link className="navbar-brand" to="/">{props.text}</Link>
                     <button className="navbar-toggler" type="button" data-bs-toggle="collapse"
