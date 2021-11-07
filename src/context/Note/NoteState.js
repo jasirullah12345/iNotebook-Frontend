@@ -56,8 +56,22 @@ const NoteState = (props) => {
         }
     };
     // Update notes
-    const updateNote = () => {
-        console.log("Notes updated");
+    const updateNote = async (id, title, description, tag) => {
+        const url = SERVER_PORT + "/api/note/updatenote/" + id;
+        const response = await fetch(url, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+                'auth-token': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjp7ImlkIjoiNjE4MDM0OTk3OGUyZGZhMTJhMTUwYzhmIn0sImlhdCI6MTYzNTc5ODA0N30.SJwEagw74b13NpUKddgJHdzoSjiKJTUg8RgaajixCIo'
+            },
+            body: JSON.stringify({title, description, tag})
+        });
+        if (response.status === 200) {
+            await getNotes();
+            alert("Note Updated");
+        } else {
+            await displayError(response);
+        }
     };
 
     // Display Errors

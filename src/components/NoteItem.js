@@ -15,7 +15,15 @@ const NoteItem = (props) => {
                     <i className="far fa-trash-alt mx-2" onClick={() => {
                         context.deleteNote(props.id);
                     }}/>
-                    <i className="fas fa-edit mx-2"/>
+                    <i className="fas fa-edit mx-2" onClick={() => {
+                        props.setEditNote({
+                            id: props.id,
+                            title: props.title,
+                            description: props.description,
+                            tag: props.tag
+                        });
+                        props.modal.current.click();
+                    }}/>
                 </div>
                 <div className="card-footer text-muted">
                     {new Date(props.date).toLocaleString()}
