@@ -1,13 +1,13 @@
 import React, {useState} from 'react';
-import NoteContext from "./NoteContext";
+import UserContext from "./UserContext";
 import $ from "jquery";
 
 const SERVER_PORT = process.env.REACT_APP_SERVER_PORT;
 
-const NoteState = (props) => {
-    const [notes, setNotes] = useState([]);
+const UserState = (props) => {
+    const [user, setUser] = useState([]);
     // Fetch all notes
-    const getNotes = async () => {
+    const login = async () => {
         const url = SERVER_PORT + "/api/note/fetchallnotes";
         const response = await fetch(url, {
             method: 'GET',
@@ -16,15 +16,11 @@ const NoteState = (props) => {
                 'auth-token': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjp7ImlkIjoiNjE4MDM0OTk3OGUyZGZhMTJhMTUwYzhmIn0sImlhdCI6MTYzNTc5ODA0N30.SJwEagw74b13NpUKddgJHdzoSjiKJTUg8RgaajixCIo'
             }
         });
-        if (response.status === 200) {
-            const data = await response.json()
-            setNotes(data);
-        } else {
-            await displayError(response);
-        }
+        const data = await response.json()
+        setNotes(data);
     };
     // Add notes
-    const addNote = async (title, description, tag) => {
+    const logout = async (title, description, tag) => {
         const url = SERVER_PORT + "/api/note/addnote";
         const response = await fetch(url, {
             method: 'POST',
@@ -43,7 +39,7 @@ const NoteState = (props) => {
         }
     };
     // Delete notes
-    const deleteNote = async (id) => {
+    const signup = async (name, email, password) => {
         const url = SERVER_PORT + "/api/note/deletenote/" + id;
         const response = await fetch(url, {
             method: 'DELETE',
@@ -55,24 +51,6 @@ const NoteState = (props) => {
         if (response.status === 200) {
             await getNotes();
             alert("Note Deleted");
-        } else {
-            await displayError(response);
-        }
-    };
-    // Update notes
-    const updateNote = async (id, title, description, tag) => {
-        const url = SERVER_PORT + "/api/note/updatenote/" + id;
-        const response = await fetch(url, {
-            method: 'PUT',
-            headers: {
-                'Content-Type': 'application/json',
-                'auth-token': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjp7ImlkIjoiNjE4MDM0OTk3OGUyZGZhMTJhMTUwYzhmIn0sImlhdCI6MTYzNTc5ODA0N30.SJwEagw74b13NpUKddgJHdzoSjiKJTUg8RgaajixCIo'
-            },
-            body: JSON.stringify({title, description, tag})
-        });
-        if (response.status === 200) {
-            await getNotes();
-            alert("Note Updated");
         } else {
             await displayError(response);
         }
@@ -95,11 +73,11 @@ const NoteState = (props) => {
     };
     return (
         <>
-            <NoteContext.Provider value={{notes, addNote, deleteNote, updateNote, getNotes}}>
+            <UserContext.Provider value={{user,login,logout,signup}}>
                 {props.children}
-            </NoteContext.Provider>
+            </UserContext.Provider>
         </>
     );
 };
 
-export default NoteState;
+export default UserState;
