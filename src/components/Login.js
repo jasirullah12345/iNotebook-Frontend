@@ -1,13 +1,15 @@
-import React, {useState} from 'react';
+import React, {useContext, useState} from 'react';
+import UserContext from "../context/User/UserContext";
 
 const Login = () => {
+    const context = useContext(UserContext);
     const [credentials, setCredentials] = useState({email: "", password: ""});
     const onChange = (e) => {
         setCredentials({...credentials, [e.target.name]: e.target.value});
     };
     const handleSubmit = async (e) => {
         e.preventDefault();
-        console.log("Hello");
+        await context.login(credentials.email, credentials.password);
     };
     return (
         <>

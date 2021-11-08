@@ -1,56 +1,79 @@
 import React, {useState} from 'react';
 import UserContext from "./UserContext";
-import $ from "jquery";
+import {useNavigate} from "react-router-dom";
 
 const SERVER_PORT = process.env.REACT_APP_SERVER_PORT;
 
 const UserState = (props) => {
-    const [user, setUser] = useState([]);
-    // Fetch all notes
-    const login = async () => {
-        const url = SERVER_PORT + "/api/note/fetchallnotes";
-        const response = await fetch(url, {
-            method: 'GET',
-            headers: {
-                'Content-Type': 'application/json',
-                'auth-token': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjp7ImlkIjoiNjE4MDM0OTk3OGUyZGZhMTJhMTUwYzhmIn0sImlhdCI6MTYzNTc5ODA0N30.SJwEagw74b13NpUKddgJHdzoSjiKJTUg8RgaajixCIo'
-            }
-        });
-        const data = await response.json()
-        setNotes(data);
-    };
-    // Add notes
-    const logout = async (title, description, tag) => {
-        const url = SERVER_PORT + "/api/note/addnote";
+    const Navigate = useNavigate();
+    const [user, setUser] = useState({});
+
+    // Login user
+    const login = async (email, password) => {
+        const url = SERVER_PORT + "/api/auth/login";
         const response = await fetch(url, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-                'auth-token': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjp7ImlkIjoiNjE4MDM0OTk3OGUyZGZhMTJhMTUwYzhmIn0sImlhdCI6MTYzNTc5ODA0N30.SJwEagw74b13NpUKddgJHdzoSjiKJTUg8RgaajixCIo'
             },
-            body: JSON.stringify({title, description, tag}),
+            body: JSON.stringify({email, password}),
         });
         if (response.status === 200) {
-            await getNotes();
-            alert("New Note Added");
-            $("#noteForm input").val("");
+            const data = await response.json();
+            localStorage.setItem("auth-token", data.authenticationToken);
+            await userDetails();
+            Navigate("/");
         } else {
             await displayError(response);
         }
     };
-    // Delete notes
-    const signup = async (name, email, password) => {
-        const url = SERVER_PORT + "/api/note/deletenote/" + id;
+
+    // Get User Details
+    const userDetails = async () => {
+        if (localStorage.getItem("auth-token")) {
+            const url = SERVER_PORT + "/api/auth/getuser";
+            const response = await fetch(url, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    "auth-token": localStorage.getItem("auth-token")
+                }
+            });
+            if (response.status === 200) {
+                const data = await response.json();
+                setUser({
+                    id: data._id,
+                    name: data.userName,
+                    email: data.email
+                })
+            } else {
+                await displayError(response);
+            }
+        }
+    };
+
+    // Logout User
+    const logout = async () => {
+        setUser({isLogin: false});
+        localStorage.removeItem("auth-token");
+        Navigate("/login");
+    };
+
+    // SignUp User
+    const signup = async (userName, email, password) => {
+        const url = SERVER_PORT + "/api/auth/createuser";
         const response = await fetch(url, {
-            method: 'DELETE',
+            method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-                'auth-token': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjp7ImlkIjoiNjE4MDM0OTk3OGUyZGZhMTJhMTUwYzhmIn0sImlhdCI6MTYzNTc5ODA0N30.SJwEagw74b13NpUKddgJHdzoSjiKJTUg8RgaajixCIo'
-            }
+            },
+            body: JSON.stringify({userName, email, password}),
         });
         if (response.status === 200) {
-            await getNotes();
-            alert("Note Deleted");
+            const data = await response.json();
+            localStorage.setItem("auth-token", data.authenticationToken);
+            await userDetails();
+            Navigate("/")
         } else {
             await displayError(response);
         }
@@ -61,7 +84,7 @@ const UserState = (props) => {
         const data = await response.json();
         if (data.error) {
             alert(data.error);
-        } else {
+        } else if (data.errors) {
             const errors = data.errors;
             let txt = "";
             for (let i = 0; i < errors.length; i++) {
@@ -69,11 +92,13 @@ const UserState = (props) => {
                 txt += ' \n';
             }
             alert(txt);
+        } else {
+            alert("No response from server");
         }
     };
     return (
         <>
-            <UserContext.Provider value={{user,login,logout,signup}}>
+            <UserContext.Provider value={{user, login, logout, signup, userDetails}}>
                 {props.children}
             </UserContext.Provider>
         </>
